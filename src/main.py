@@ -61,7 +61,7 @@ class Switch:
         return f"Zwrotnica -> {self.state}"
 
 
-track = Track(length=8, switch_pos=6)
+track = Track(length=10, switch_pos=6)
 train = Train(position=1)
 step = 0
 task_id = None
@@ -79,9 +79,25 @@ stop_info = tk.Label(info, text="")
 stop_info.pack(side="top")
 step_count = tk.Label(info, text="", fg="red")
 step_count.pack(side="top")
+'''
+# track_gui = tk.Label(root, text=str(track))
+# track_gui.pack()
+'''
+canvas = tk.Canvas(root, width=600, height=100, bg="white")
+canvas.pack(pady=20)
 
-track_gui = tk.Label(root, text=str(track))
-track_gui.pack()
+cell_size = 60
+track_rects = []
+
+for i in range(len(track.cells)):
+    x1 = i * cell_size
+    rect = canvas.create_rectangle(x1, 40, x1 + cell_size, 80, fill="gray", outline="white")
+    track_rects.append(rect)
+train_rect = canvas.create_rectangle(train.position * cell_size, 30, (train.position * cell_size) + cell_size, 90, fill="red")
+
+def update_train_position():
+    x = train.position * cell_size
+    canvas.coords(train_rect, x, 30, x + cell_size, 90)
 
 def start_movement():
     stop_info.config(text="")
@@ -90,12 +106,13 @@ def start_movement():
 
 def movement():
     global step, task_id
-    
+
+    update_train_position()
+
     if step >= 15:
         return
     
     step_count.config(text=f"Current step: {step}")
-    track_gui.config(text=str(track))
     track.cells[train.position].occupied = False
     train.move(len(track.cells), track)
     track.cells[train.position].occupied = True
@@ -121,9 +138,9 @@ def reset():
     train.direction = 1
     
     track.cells[train.position].occupied = False
-    train.position = 2  # np. początek toru
+    train.position = 1  # np. początek toru
     track.cells[train.position].occupied = True
-    track_gui.config(text=str(track))
+    # track_gui.config(text=str(track))
     step_count.config(text="Simulation restarted")
 
 def switch():
@@ -133,10 +150,10 @@ def switch():
 st_buttons = tk.Frame(root)
 st_buttons.pack(pady=10)
 
-start_btn = tk.Button(st_buttons, text="Start", command=start_movement, bg="green")
-stop_btn = tk.Button(st_buttons, text="Stop", command=stop_movement, bg="red")
-restart_btn = tk.Button(st_buttons, text="Reset", command=reset, fg="white", bg="black")
-switch_btn = tk.Button(st_buttons, text="Switch", command=switch, fg="white", bg="purple")
+start_btn = tk.Button(st_buttons, text="Start", command=start_movement)
+stop_btn = tk.Button(st_buttons, text="Stop", command=stop_movement)
+restart_btn = tk.Button(st_buttons, text="Reset", command=reset)
+switch_btn = tk.Button(st_buttons, text="Switch", command=switch)
 start_btn.pack(side="left", padx=5)
 stop_btn.pack(side="left", padx=5)
 restart_btn.pack(side="left", padx=5)
