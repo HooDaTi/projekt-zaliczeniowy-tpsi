@@ -61,7 +61,7 @@ class Switch:
         return f"Zwrotnica -> {self.state}"
 
 
-track = Track(length=10, switch_pos=6)
+track = Track(length=9, switch_pos=6)
 train = Train(position=1)
 step = 0
 task_id = None
@@ -94,6 +94,7 @@ for i in range(len(track.cells)):
     rect = canvas.create_rectangle(x1, 40, x1 + cell_size, 80, fill="gray", outline="white")
     track_rects.append(rect)
 train_rect = canvas.create_rectangle(train.position * cell_size, 30, (train.position * cell_size) + cell_size, 90, fill="red")
+switch_rect = canvas.create_rectangle(track.switch_pos * cell_size, 40, (track.switch_pos * cell_size) + cell_size, 80, fill="purple")
 
 def update_train_position():
     x = train.position * cell_size
@@ -141,11 +142,12 @@ def reset():
     train.position = 1  # np. początek toru
     track.cells[train.position].occupied = True
     # track_gui.config(text=str(track))
+    update_train_position()
     step_count.config(text="Simulation restarted")
 
 def switch():
     track.switch.toggle()
-    stop_info.config(text=f"Switch changed to {track.switch.state} state!", fg="purple")
+    stop_info.config(text=f"Switch changed to {track.switch.state} state!")
 
 st_buttons = tk.Frame(root)
 st_buttons.pack(pady=10)
