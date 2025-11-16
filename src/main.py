@@ -88,14 +88,15 @@ canvas.pack(pady=20)
 
 cell_size = 60
 track_rects = []
+switch_index = track.switch_pos
 
 for i in range(len(track.cells)):
     x1 = i * cell_size
     rect = canvas.create_rectangle(x1, 40, x1 + cell_size, 80, fill="gray", outline="white")
     track_rects.append(rect)
 train_rect = canvas.create_rectangle(train.position * cell_size, 30, (train.position * cell_size) + cell_size, 90, fill="red")
-switch_rect = canvas.create_rectangle(track.switch_pos * cell_size, 40, (track.switch_pos * cell_size) + cell_size, 80, fill="purple")
-
+canvas.itemconfig(track_rects[switch_index], fill="yellow")
+switch_label = canvas.create_text((switch_index * cell_size) + cell_size/2, 95, text="A", fill="black")
 def update_train_position():
     x = train.position * cell_size
     canvas.coords(train_rect, x, 30, x + cell_size, 90)
@@ -147,7 +148,7 @@ def reset():
 
 def switch():
     track.switch.toggle()
-    stop_info.config(text=f"Switch changed to {track.switch.state} state!")
+    canvas.itemconfig(switch_label, text=track.switch.state)
 
 st_buttons = tk.Frame(root)
 st_buttons.pack(pady=10)
