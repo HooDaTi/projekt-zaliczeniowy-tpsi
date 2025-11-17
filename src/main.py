@@ -7,9 +7,6 @@ class Cell:
     def __init__(self, occupied = False):
         self.occupied = occupied
 
-    # def toggle(self):
-    #     self.occupied = not self.occupied
-
     def is_occupied(self):
         return self.occupied
     
@@ -53,20 +50,30 @@ class Train:
 class Switch:
     def __init__(self):
         self.state =  "A" # "A" = prosto, "B" = skręt
+        self._update_color()   
+    
+    def _update_color(self):
+        self.color = "yellow" if self.state == "A" else "purple"
+
+    def reset(self):
+        self.state = "A"
+        self._update_color()
 
     def toggle(self):
         self.state = "B" if self.state == "A" else "A"
+        self._update_color()
 
     def __str__(self):
         return f"Zwrotnica -> {self.state}"
 
 
+root.title("Automat komórkowy")
+root.geometry("1200x800")
 track = Track(length=9, switch_pos=6)
 train = Train(position=1)
+first_pos = train.position
 step = 0
 task_id = None
-root.title("Automat komórkowy")
-root.geometry("1000x500")
 
 track.cells[train.position].occupied = True
 
@@ -83,77 +90,104 @@ step_count.pack(side="top")
 # track_gui = tk.Label(root, text=str(track))
 # track_gui.pack()
 '''
-canvas = tk.Canvas(root, width=600, height=100, bg="white")
+canvas = tk.Canvas(root, width=900, height=600, bg="white")
 canvas.pack(pady=20)
 
-cell_size = 60
 track_rects = []
 switch_index = track.switch_pos
+cell_size = 60
+start_x = 100
+start_y = 100
+positions = []
 
-for i in range(len(track.cells)):
-    x1 = i * cell_size
-    rect = canvas.create_rectangle(x1, 40, x1 + cell_size, 80, fill="gray", outline="white")
-    track_rects.append(rect)
-train_rect = canvas.create_rectangle(train.position * cell_size, 30, (train.position * cell_size) + cell_size, 90, fill="red")
-canvas.itemconfig(track_rects[switch_index], fill="yellow")
-switch_label = canvas.create_text((switch_index * cell_size) + cell_size/2, 95, text="A", fill="black")
-def update_train_position():
-    x = train.position * cell_size
-    canvas.coords(train_rect, x, 30, x + cell_size, 90)
+# gorna krawedz
+for i in range(10):
+    positions.append((start_x + i*cell_size, start_y))
 
-def start_movement():
-    stop_info.config(text="")
-    start_info.config(text="The train has started!", fg="green")
-    movement()
+# prawa krawedz
+for i in range(1, 6):
+    positions.append((start_x + 9*cell_size, start_y + i*cell_size))
 
-def movement():
-    global step, task_id
+# dolna krawedz
+for i in range(10):
+    positions.append((start_x + 9*cell_size - i*cell_size, start_y + 5*cell_size))
 
-    update_train_position()
+# lewa krawedz
+for i in range(1, 6):
+    positions.append((start_x, start_y + 5*cell_size - i*cell_size))
 
-    if step >= 15:
-        return
+# for i in range(len(track.cells)):
+#     x1 = i * cell_size + 5
+
+#     rect = canvas.create_rectangle(x1, 40, x1 + cell_size, 80, fill="gray", outline="white")
+#     track_rects.append(rect)
+# train_rect = canvas.create_rectangle(train.position * cell_size, 30, (train.position * cell_size) + cell_size, 90, fill="red")
+# canvas.itemconfig(track_rects[switch_index], fill=track.switch.color)
+# switch_label = canvas.create_text((switch_index * cell_size) + cell_size/2, 95, text=track.switch.state, fill="black")
+
+# def update_train_position():
+#     x = train.position * cell_size
+#     canvas.coords(train_rect, x, 30, x + cell_size, 90)
+
+# def start_movement():
+#     stop_info.config(text="")
+#     start_info.config(text="The train has started!", fg="green")
+#     movement()
+
+# def movement():
+#     global step, task_id
+
+#     if step > 15:
+#         return
     
-    step_count.config(text=f"Current step: {step}")
-    track.cells[train.position].occupied = False
-    train.move(len(track.cells), track)
-    track.cells[train.position].occupied = True
+#     update_train_position()
+
+#     step_count.config(text=f"Current step: {step}")
+#     track.cells[train.position].occupied = False
+#     train.move(len(track.cells), track)
+#     track.cells[train.position].occupied = True
     
-    step += 1
-    task_id = root.after(1000, movement)
+#     step += 1
+#     task_id = root.after(1000, movement)
 
-def stop_movement():
-    if task_id:
-        root.after_cancel(task_id)
+# def stop_movement():
+#     if task_id:
+#         root.after_cancel(task_id)
 
-    start_info.config(text="")
-    stop_info.config(text="The train has stopped!", fg="red")
+#     start_info.config(text="")
+#     stop_info.config(text="The train has stopped!", fg="red")
 
-def reset():
-    global step
+# def reset():
+#     global step
 
-    if task_id:
-        root.after_cancel(task_id)
-    step = 0
-    start_info.config(text="")
-    stop_info.config(text="")
-    train.direction = 1
+#     if task_id:
+#         root.after_cancel(task_id)
     
-    track.cells[train.position].occupied = False
-    train.position = 1  # np. początek toru
-    track.cells[train.position].occupied = True
-    # track_gui.config(text=str(track))
-    update_train_position()
-    step_count.config(text="Simulation restarted")
+#     step = 0
+#     start_info.config(text="")
+#     stop_info.config(text="")
+#     train.direction = 1
+#     track.switch.reset()
 
-def switch():
-    track.switch.toggle()
-    canvas.itemconfig(switch_label, text=track.switch.state)
+#     canvas.itemconfig(switch_label, text=track.switch.state)
+#     canvas.itemconfig(track_rects[switch_index], fill=track.switch.color)
+    
+#     track.cells[train.position].occupied = False
+#     train.position = first_pos  # początek toru
+#     track.cells[train.position].occupied = True
+#     # track_gui.config(text=str(track))
+#     update_train_position()
+#     step_count.config(text="Simulation restarted")
+
+# def switch():
+#     track.switch.toggle()
+#     canvas.itemconfig(switch_label, text=track.switch.state)
+#     canvas.itemconfig(track_rects[switch_index], fill=track.switch.color)
 
 st_buttons = tk.Frame(root)
 st_buttons.pack(pady=10)
 
-start_btn = tk.Button(st_buttons, text="Start", command=start_movement)
+start_btn = tk.Button(st_buttons, text="Start", command=start_movement, highlightbackground="green")
 stop_btn = tk.Button(st_buttons, text="Stop", command=stop_movement)
 restart_btn = tk.Button(st_buttons, text="Reset", command=reset)
 switch_btn = tk.Button(st_buttons, text="Switch", command=switch)
