@@ -69,7 +69,7 @@ class Switch:
 
 root.title("Automat komórkowy")
 root.geometry("1200x800")
-track = Track(length=9, switch_pos=6)
+track = Track(length=20, switch_pos=6)
 train = Train(position=1)
 first_pos = train.position
 step = 0
@@ -116,73 +116,78 @@ for i in range(10):
 for i in range(1, 6):
     positions.append((start_x, start_y + 5*cell_size - i*cell_size))
 
+for (x, y) in positions:
+    r = canvas.create_rectangle(x, y, x+cell_size, y+cell_size, fill="gray", outline="white")
+    track_rects.append(r)
+
+
 # for i in range(len(track.cells)):
 #     x1 = i * cell_size + 5
 
 #     rect = canvas.create_rectangle(x1, 40, x1 + cell_size, 80, fill="gray", outline="white")
 #     track_rects.append(rect)
-# train_rect = canvas.create_rectangle(train.position * cell_size, 30, (train.position * cell_size) + cell_size, 90, fill="red")
-# canvas.itemconfig(track_rects[switch_index], fill=track.switch.color)
-# switch_label = canvas.create_text((switch_index * cell_size) + cell_size/2, 95, text=track.switch.state, fill="black")
+train_rect = canvas.create_rectangle(start_x + train.position * cell_size, start_y, start_x + (train.position * cell_size) + cell_size, start_y+cell_size, fill="red")
+canvas.itemconfig(track_rects[switch_index], fill=track.switch.color)
+switch_label = canvas.create_text(start_x + (switch_index * cell_size) + cell_size/2, start_y + cell_size + 5, text=track.switch.state, fill="black")
 
-# def update_train_position():
-#     x = train.position * cell_size
-#     canvas.coords(train_rect, x, 30, x + cell_size, 90)
+def update_train_position():
+    x = start_x + (train.position * cell_size)
+    canvas.coords(train_rect, x, start_y, x + cell_size, start_y + cell_size)
 
-# def start_movement():
-#     stop_info.config(text="")
-#     start_info.config(text="The train has started!", fg="green")
-#     movement()
+def start_movement():
+    stop_info.config(text="")
+    start_info.config(text="The train has started!", fg="green")
+    movement()
 
-# def movement():
-#     global step, task_id
+def movement():
+    global step, task_id
 
-#     if step > 15:
-#         return
+    if step > 50:
+        return
     
-#     update_train_position()
+    update_train_position()
 
-#     step_count.config(text=f"Current step: {step}")
-#     track.cells[train.position].occupied = False
-#     train.move(len(track.cells), track)
-#     track.cells[train.position].occupied = True
+    step_count.config(text=f"Current step: {step}")
+    track.cells[train.position].occupied = False
+    train.move(len(track.cells), track)
+    track.cells[train.position].occupied = True
     
-#     step += 1
-#     task_id = root.after(1000, movement)
+    step += 1
+    task_id = root.after(1000, movement)
 
-# def stop_movement():
-#     if task_id:
-#         root.after_cancel(task_id)
+def stop_movement():
+    if task_id:
+        root.after_cancel(task_id)
 
-#     start_info.config(text="")
-#     stop_info.config(text="The train has stopped!", fg="red")
+    start_info.config(text="")
+    stop_info.config(text="The train has stopped!", fg="red")
 
-# def reset():
-#     global step
+def reset():
+    global step
 
-#     if task_id:
-#         root.after_cancel(task_id)
+    if task_id:
+        root.after_cancel(task_id)
     
-#     step = 0
-#     start_info.config(text="")
-#     stop_info.config(text="")
-#     train.direction = 1
-#     track.switch.reset()
+    step = 0
+    start_info.config(text="")
+    stop_info.config(text="")
+    train.direction = 1
+    track.switch.reset()
 
-#     canvas.itemconfig(switch_label, text=track.switch.state)
-#     canvas.itemconfig(track_rects[switch_index], fill=track.switch.color)
+    canvas.itemconfig(switch_label, text=track.switch.state)
+    canvas.itemconfig(track_rects[switch_index], fill=track.switch.color)
     
-#     track.cells[train.position].occupied = False
-#     train.position = first_pos  # początek toru
-#     track.cells[train.position].occupied = True
-#     # track_gui.config(text=str(track))
-#     update_train_position()
-#     step_count.config(text="Simulation restarted")
+    track.cells[train.position].occupied = False
+    train.position = first_pos  # początek toru
+    track.cells[train.position].occupied = True
+    # track_gui.config(text=str(track))
+    update_train_position()
+    step_count.config(text="Simulation restarted")
 
-# def switch():
-#     track.switch.toggle()
-#     canvas.itemconfig(switch_label, text=track.switch.state)
-#     canvas.itemconfig(track_rects[switch_index], fill=track.switch.color)
+def switch():
+    track.switch.toggle()
+    canvas.itemconfig(switch_label, text=track.switch.state)
+    canvas.itemconfig(track_rects[switch_index], fill=track.switch.color)
 
 st_buttons = tk.Frame(root)
 st_buttons.pack(pady=10)
