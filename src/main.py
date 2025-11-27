@@ -70,7 +70,7 @@ class Switch:
 root.title("Automat komórkowy")
 root.geometry("1200x800")
 track = Track(length=20, switch_pos=6)
-train = Train(position=1)
+train = Train(position=0)
 first_pos = train.position
 step = 0
 task_id = None
@@ -99,6 +99,7 @@ cell_size = 60
 start_x = 100
 start_y = 100
 positions = []
+crnt_pos = 0
 
 # gorna krawedz
 for i in range(10):
@@ -131,8 +132,14 @@ canvas.itemconfig(track_rects[switch_index], fill=track.switch.color)
 switch_label = canvas.create_text(start_x + (switch_index * cell_size) + cell_size/2, start_y + cell_size + 5, text=track.switch.state, fill="black")
 
 def update_train_position():
-    x = start_x + (train.position * cell_size)
-    canvas.coords(train_rect, x, start_y, x + cell_size, start_y + cell_size)
+    global crnt_pos
+
+    # x = start_x + (train.position * cell_size)
+    (x, y) = positions[crnt_pos]
+    print(x)
+    print(y)
+    canvas.coords(train_rect, x, y, x + cell_size, y + cell_size)
+    crnt_pos = (crnt_pos + 1) % len(positions)
 
 def start_movement():
     stop_info.config(text="")
