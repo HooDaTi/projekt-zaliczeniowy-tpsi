@@ -67,15 +67,17 @@ class Switch:
         return f"Zwrotnica -> {self.state}"
 
 
+class Station:
+    color = "black"
+
+    def __init__(self, position):
+        self.position = position
+
+
+
+
 root.title("Automat komórkowy")
 root.geometry("1200x800")
-track = Track(length=20, switch_pos=6)
-train = Train(position=0)
-first_pos = train.position
-step = 0
-task_id = None
-
-track.cells[train.position].occupied = True
 
 info = tk.Frame(root)
 info.pack()
@@ -94,12 +96,13 @@ canvas = tk.Canvas(root, width=900, height=600, bg="white")
 canvas.pack(pady=20)
 
 track_rects = []
-switch_index = track.switch_pos
 cell_size = 60
 start_x = 100
 start_y = 100
 positions = []
-crnt_pos = 0
+station1 = Station(position=13)
+station2 = Station(position=16)
+station3 = Station(position=23)
 
 # gorna krawedz
 for i in range(10):
@@ -110,11 +113,11 @@ for i in range(1, 6):
     positions.append((start_x + 9*cell_size, start_y + i*cell_size))
 
 # dolna krawedz
-for i in range(10):
+for i in range(1, 10):
     positions.append((start_x + 9*cell_size - i*cell_size, start_y + 5*cell_size))
 
 # lewa krawedz
-for i in range(1, 6):
+for i in range(1, 5):
     positions.append((start_x, start_y + 5*cell_size - i*cell_size))
 
 for (x, y) in positions:
@@ -127,19 +130,28 @@ for (x, y) in positions:
 
 #     rect = canvas.create_rectangle(x1, 40, x1 + cell_size, 80, fill="gray", outline="white")
 #     track_rects.append(rect)
-train_rect = canvas.create_rectangle(start_x + train.position * cell_size, start_y, start_x + (train.position * cell_size) + cell_size, start_y+cell_size, fill="red")
+
+track = Track(len(positions), switch_pos=6)
+train = Train(position=0)
+first_pos = train.position
+step = 0
+task_id = None
+switch_index = track.switch_pos
+
+
+track.cells[train.position].occupied = True
+
+x, y = positions[train.position]
+train_rect = canvas.create_rectangle(x, y, x + cell_size, y + cell_size, fill="red")
 canvas.itemconfig(track_rects[switch_index], fill=track.switch.color)
 switch_label = canvas.create_text(start_x + (switch_index * cell_size) + cell_size/2, start_y + cell_size + 5, text=track.switch.state, fill="black")
+canvas.itemconfig(track_rects[station1.position], fill=Station.color)
+canvas.itemconfig(track_rects[station2.position], fill=Station.color)
+canvas.itemconfig(track_rects[station3.position], fill=Station.color)
 
 def update_train_position():
-    global crnt_pos
-
-    # x = start_x + (train.position * cell_size)
-    (x, y) = positions[crnt_pos]
-    print(x)
-    print(y)
+    (x, y) = positions[train.position]
     canvas.coords(train_rect, x, y, x + cell_size, y + cell_size)
-    crnt_pos = (crnt_pos + 1) % len(positions)
 
 def start_movement():
     stop_info.config(text="")
@@ -152,14 +164,21 @@ def movement():
     if step > 50:
         return
     
+    if train.position == station1.position or train.position == station2.position or train.position == station3.position:
+        stop_movement()
+        return
+    #zatrzymuje się PRZED peronem, i nie jedzie dalej 
+    #zaimplementować aby po paru sekundach ruszał dalej
+        
     update_train_position()
+
 
     step_count.config(text=f"Current step: {step}")
     track.cells[train.position].occupied = False
     train.move(len(track.cells), track)
     track.cells[train.position].occupied = True
-    
     step += 1
+
     task_id = root.after(1000, movement)
 
 def stop_movement():
