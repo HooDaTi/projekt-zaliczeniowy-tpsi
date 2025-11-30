@@ -150,6 +150,7 @@ canvas.itemconfig(track_rects[station2.position], fill=Station.color)
 canvas.itemconfig(track_rects[station3.position], fill=Station.color)
 
 def update_train_position():
+    stop_info.config(text="")
     (x, y) = positions[train.position]
     canvas.coords(train_rect, x, y, x + cell_size, y + cell_size)
 
@@ -164,22 +165,19 @@ def movement():
     if step > 50:
         return
     
-    if train.position == station1.position or train.position == station2.position or train.position == station3.position:
-        stop_movement()
-        return
-    #zatrzymuje się PRZED peronem, i nie jedzie dalej 
-    #zaimplementować aby po paru sekundach ruszał dalej
-        
-    update_train_position()
-
-
+    step += 1
     step_count.config(text=f"Current step: {step}")
     track.cells[train.position].occupied = False
     train.move(len(track.cells), track)
     track.cells[train.position].occupied = True
-    step += 1
 
-    task_id = root.after(1000, movement)
+    update_train_position()
+
+    if train.position == station1.position or train.position == station2.position or train.position == station3.position:
+        task_id = root.after(4500, movement)
+        stop_info.config(text="The train is on the station", fg="blue", bg="yellow")
+    else:
+        task_id = root.after(1000, movement)
 
 def stop_movement():
     if task_id:
