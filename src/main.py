@@ -92,13 +92,13 @@ step_count.pack(side="top")
 # track_gui = tk.Label(root, text=str(track))
 # track_gui.pack()
 '''
-canvas = tk.Canvas(root, width=900, height=600, bg="white")
+canvas = tk.Canvas(root, width=800, height=500)
 canvas.pack(pady=20)
 
 track_rects = []
 cell_size = 60
 start_x = 100
-start_y = 100
+start_y = 70
 positions = []
 station1 = Station(position=13)
 station2 = Station(position=16)
@@ -144,7 +144,7 @@ track.cells[train.position].occupied = True
 x, y = positions[train.position]
 train_rect = canvas.create_rectangle(x, y, x + cell_size, y + cell_size, fill="red")
 canvas.itemconfig(track_rects[switch_index], fill=track.switch.color)
-switch_label = canvas.create_text(start_x + (switch_index * cell_size) + cell_size/2, start_y + cell_size + 5, text=track.switch.state, fill="black")
+switch_label = canvas.create_text(start_x + (switch_index * cell_size) + cell_size/2, start_y + cell_size + 5, text=track.switch.state, fill="white")
 canvas.itemconfig(track_rects[station1.position], fill=Station.color)
 canvas.itemconfig(track_rects[station2.position], fill=Station.color)
 canvas.itemconfig(track_rects[station3.position], fill=Station.color)
