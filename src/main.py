@@ -216,7 +216,7 @@ def switch():
 st_buttons = tk.Frame(root)
 st_buttons.pack(pady=10)
 
-start_btn = tk.Button(st_buttons, text="Start", command=start_movement, highlightbackground="green")
+start_btn = tk.Button(st_buttons, text="Start", command=start_movement)
 stop_btn = tk.Button(st_buttons, text="Stop", command=stop_movement)
 restart_btn = tk.Button(st_buttons, text="Reset", command=reset)
 switch_btn = tk.Button(st_buttons, text="Switch", command=switch)

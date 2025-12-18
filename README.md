@@ -1,6 +1,6 @@
 # Projekt na "Techniki programowania systemów inteligentnych"
 
-Projekt będzie składał się z automatu komórkowego wykonanego w języku Python z wykorzytaniem bibliotek GUI.
+Projekt to automat komórkowy wykonany w języku Python z wykorzytaniem bibliotek GUI.
 
 ## Uruchomienie
 ```bash
