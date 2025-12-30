@@ -22,6 +22,9 @@ class Track:
         self.switch_pos = switch_pos
         self.switch = Switch() if switch_pos is not None else None
 
+        # ROZWIDLENIA
+        self.junctions = {}   # { position: {"A": next, "B": next} }
+        self.forced_next = {} # { position: next }
     def __str__(self):
         result = []
         for i, cell in enumerate(self.cells):
@@ -37,14 +40,18 @@ class Train:
         self.position = position # aktualna pozycja pociągu
         self.direction = direction # 1 = w prawo, -1 = w lewo
 
-    def move(self, track_length, track):
-        if track.switch_pos == self.position:
-            if track.switch.state == "B":
-                self.direction *= -1
-                print("🚦 Zwrotnica zmieniła kierunek jazdy!")
+    def move(self, track):
+        pos = self.position
         
-        self.position = (self.position + self.direction) % track_length
-
+        if pos in track.junctions:
+            self.position = track.junctions[pos][track.switch.state]
+            return
+        
+        if pos in track.forced_next:
+            self.position = track.forced_next[pos]
+            return
+        
+        self.position = (pos + self.direction) % len(track.cells)
 
 class Switch:
     def __init__(self):
@@ -102,7 +109,13 @@ positions = []
 station1 = Station(position=13)
 station2 = Station(position=16)
 station3 = Station(position=23)
-
+#######################DOKONCZYC
+branch_positions = {
+    20: (400, 200),
+    21: (400, 260),
+    22: (400, 320),
+}
+###########################
 # gorna krawedz
 for i in range(10):
     positions.append((start_x + i*cell_size, start_y))
@@ -137,6 +150,17 @@ step = 0
 task_id = None
 switch_index = track.switch_pos
 
+#rozwidlenie w 6
+track.junctions[6] = {
+    "A" : 7, #główny tor
+    "B" : 20 #boczny tor
+}
+
+#boczny tor
+track.forced_next[20] = 21
+track.forced_next[21] = 22
+track.forced_next[22] = 7 #powrót
+
 
 track.cells[train.position].occupied = True
 
@@ -167,7 +191,7 @@ def movement():
     step += 1
     step_count.config(text=f"Current step: {step}")
     track.cells[train.position].occupied = False
-    train.move(len(track.cells), track)
+    train.move(track)
     track.cells[train.position].occupied = True
 
     update_train_position()
