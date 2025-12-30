@@ -1,5 +1,4 @@
 import tkinter as tk
-import time
 
 root = tk.Tk()
 
@@ -172,8 +171,8 @@ def movement():
     track.cells[train.position].occupied = True
 
     update_train_position()
-
-    if train.position == station1.position or train.position == station2.position or train.position == station3.position:
+    stations = [station1, station2, station3]
+    if any(train.position == s.position for s in stations):
         task_id = root.after(4500, movement)
         stop_info.config(text="The train is on the station", fg="blue", bg="yellow")
     else:
