@@ -3,13 +3,13 @@ import tkinter as tk
 root = tk.Tk()
 
 class Cell:
-    def __init__(self, occupied = False):
+    def __init__(self, occupied: bool = False):
         self.occupied = occupied
 
-    def is_occupied(self):
+    def is_occupied(self) -> bool:
         return self.occupied
     
-    def set_occupied(self, value: bool):
+    def set_occupied(self, value: bool) -> None:
         self.occupied = value
 
     def __str__(self):
@@ -17,7 +17,7 @@ class Cell:
 
 
 class Track:
-    def __init__(self, length, switch_pos=None):
+    def __init__(self, length: int, switch_pos: int = None):
         self.cells = [Cell() for _ in range(length)]
         self.switch_pos = switch_pos
         self.switch = Switch() if switch_pos is not None else None
@@ -36,11 +36,11 @@ class Track:
 
 
 class Train:
-    def __init__(self, position=0, direction=1):
+    def __init__(self, position: int = 0, direction: int = 1):
         self.position = position # aktualna pozycja pociągu
         self.direction = direction # 1 = w prawo, -1 = w lewo
 
-    def move(self, track):
+    def move(self, track: 'Track') -> None:
         pos = self.position
         
         if pos in track.junctions:
@@ -58,14 +58,14 @@ class Switch:
         self.state =  "A" # "A" = prosto, "B" = skręt
         self._update_color()   
     
-    def _update_color(self):
+    def _update_color(self) -> None:
         self.color = "yellow" if self.state == "A" else "purple"
 
-    def reset(self):
+    def reset(self) -> None:
         self.state = "A"
         self._update_color()
 
-    def toggle(self):
+    def toggle(self) -> None:
         self.state = "B" if self.state == "A" else "A"
         self._update_color()
 
@@ -76,7 +76,7 @@ class Switch:
 class Station:
     color = "black"
 
-    def __init__(self, position):
+    def __init__(self, position: int):
         self.position = position
 
 
@@ -100,6 +100,7 @@ step_count.pack(side="top")
 '''
 canvas = tk.Canvas(root, width=800, height=500)
 canvas.pack(pady=20)
+canvas.config(background="lightgrey")
 
 track_rects = []
 cell_size = 60
@@ -109,13 +110,18 @@ positions = []
 station1 = Station(position=13)
 station2 = Station(position=16)
 station3 = Station(position=23)
-#######################DOKONCZYC
+
 branch_positions = {
     20: (400, 200),
     21: (400, 260),
     22: (400, 320),
 }
-###########################
+branch_rects = {}
+
+for idx, (x, y) in branch_positions.items():
+    r = canvas.create_rectangle(x, y, x+cell_size, y+cell_size, fill="lightgray", outline="white")
+    branch_rects[idx] = r
+
 # gorna krawedz
 for i in range(10):
     positions.append((start_x + i*cell_size, start_y))
@@ -143,11 +149,20 @@ for (x, y) in positions:
 #     rect = canvas.create_rectangle(x1, 40, x1 + cell_size, 80, fill="gray", outline="white")
 #     track_rects.append(rect)
 
+# Tworzenie toru
 track = Track(len(positions), switch_pos=6)
+
+# Dodanie pociągu
 train = Train(position=0)
+
+# Pierwsza pozycja pociągu (Do resetu)
 first_pos = train.position
+
+# Inicjalizacja zmiennych
 step = 0
 task_id = None
+
+# Przypisanie zwrotnicy do zmiennej
 switch_index = track.switch_pos
 
 #rozwidlenie w 6
@@ -165,17 +180,23 @@ track.forced_next[22] = 7 #powrót
 track.cells[train.position].occupied = True
 
 x, y = positions[train.position]
-train_rect = canvas.create_rectangle(x, y, x + cell_size, y + cell_size, fill="red")
-canvas.itemconfig(track_rects[switch_index], fill=track.switch.color)
-switch_label = canvas.create_text(start_x + (switch_index * cell_size) + cell_size/2, start_y + cell_size + 5, text=track.switch.state, fill="white")
-canvas.itemconfig(track_rects[station1.position], fill=Station.color)
-canvas.itemconfig(track_rects[station2.position], fill=Station.color)
-canvas.itemconfig(track_rects[station3.position], fill=Station.color)
 
-def update_train_position():
+switch_label = canvas.create_text(start_x + (switch_index * cell_size) + cell_size/2, start_y + cell_size + 5, text=track.switch.state, fill="white")
+
+def refresh_gui():
+    for i, cell in enumerate(track.cells):
+        color = "gray" 
+        if cell.is_occupied():
+            color = "red"  #pociąg
+        elif i == station1.position or i == station2.position or i == station3.position: 
+            color = Station.color
+        elif i == track.switch_pos:
+            color = track.switch.color
+        canvas.itemconfig(track_rects[i], fill=color)
+
     stop_info.config(text="")
-    (x, y) = positions[train.position]
-    canvas.coords(train_rect, x, y, x + cell_size, y + cell_size)
+
+refresh_gui()
 
 def start_movement():
     stop_info.config(text="")
@@ -194,7 +215,7 @@ def movement():
     train.move(track)
     track.cells[train.position].occupied = True
 
-    update_train_position()
+    refresh_gui()
     stations = [station1, station2, station3]
     if any(train.position == s.position for s in stations):
         task_id = root.after(4500, movement)
@@ -225,10 +246,10 @@ def reset():
     canvas.itemconfig(track_rects[switch_index], fill=track.switch.color)
     
     track.cells[train.position].occupied = False
-    train.position = first_pos  # początek toru
+    train.position = first_pos  #początek toru (Pierwsza pozycja pociągu)
     track.cells[train.position].occupied = True
     # track_gui.config(text=str(track))
-    update_train_position()
+    refresh_gui()
     step_count.config(text="Simulation restarted")
 
 def switch():
